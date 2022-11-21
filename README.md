@@ -1,1 +1,1 @@
-# lahtinen-aleksi-react
+# Aleksi Lahtinen - React Harjoitustyö
