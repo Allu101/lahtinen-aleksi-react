@@ -61,3 +61,18 @@ ul {
   font-weight: bold;
   padding: 0 6px;
 }
+
+.task {
+  background-color: rgba(20, 199, 209, 0.726);
+  border-radius: 10px;
+  max-width: 200px;
+  margin: 10px;
+  padding: 2px;
+}
+
+.task p {
+  background-color: white;
+  border-radius: 5px;
+  margin: 5px;
+  max-width: 75px;
+}

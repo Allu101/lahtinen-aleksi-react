@@ -2,7 +2,7 @@ import React from 'react';
 import './App.css';
 
 import { BrowserRouter, Route, Routes, Link } from 'react-router-dom';
-import SomeViewComponent from './SomeViewComponent';
+import TasksViewComponent from './TasksViewComponent';
 import InfoViewComponent from './InfoViewComponent';
 
 class App extends React.Component {
@@ -16,7 +16,7 @@ class App extends React.Component {
                 <Link to="/">Kotisivu</Link>
               </li>
               <li className="nav-item">
-                <Link to="/something">Something</Link>
+                <Link to="/tasks">Tasks</Link>
               </li>
               <li className="last-nav-item">
                 <Link to="/info">Tietoja</Link>
@@ -33,7 +33,7 @@ class App extends React.Component {
                 </nav>
               }
             />
-            <Route path="something/*" element={<SomeViewComponent />} />
+            <Route path="tasks/*" element={<TasksViewComponent />} />
             <Route path="info/*" element={<InfoViewComponent />} />
             <Route path="*" element={<h1>This page not found</h1>} />
           </Routes>

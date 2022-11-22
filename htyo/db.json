@@ -1,0 +1,27 @@
+{
+  "tasks": [
+    {
+      "name": "Koodaa",
+      "contexts": [1]
+    },
+    {
+      "name": "Imuroi",
+      "contexts": [2]
+    },
+    {
+      "name": "Ruoki kissa",
+      "contexts": [2, 3]
+    }
+  ],
+  "contexts": {
+    "1": {
+      "name": "Koulu"
+    },
+    "2": {
+      "name": "Koti"
+    },
+    "3": {
+      "name": "Lemmikki"
+    }
+  }
+}
