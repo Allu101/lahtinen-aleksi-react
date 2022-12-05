@@ -9,6 +9,7 @@ export default class TasksViewComponent extends React.Component {
       contexts: null,
     };
   }
+  nextID = 1;
 
   componentDidMount = function () {
     this.initContexts();
@@ -42,16 +43,30 @@ export default class TasksViewComponent extends React.Component {
     );
   }
 
+  delete = (id) => {
+    fetch(`http://localhost:3010/tasks/${id}`, {
+      method: 'DELETE',
+    }).then(async () => this.initTasks());
+  };
+
   getTasks() {
     const { tasks, contexts } = this.state;
     if (contexts === null) return;
-    return tasks.map((task, index) => (
-      <TasksComponent
-        index={index}
-        name={task.name}
-        contexts={this.getContexts(task.contexts, contexts)}
-      />
-    ));
+    let taskComponents = [];
+    tasks.forEach((task) => {
+      taskComponents.push(
+        <TasksComponent
+          key={task.id}
+          id={task.id}
+          name={task.name}
+          contexts={this.getContexts(task.contexts, contexts)}
+          onDelete={this.delete}
+        />
+      );
+      this.nextID = task.id + 1;
+    });
+    console.log('next id: ' + this.nextID);
+    return taskComponents;
   }
 
   getContexts(taskContexts, contexts) {

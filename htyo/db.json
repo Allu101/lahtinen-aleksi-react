@@ -1,16 +1,11 @@
 {
   "tasks": [
     {
-      "name": "Koodaa",
-      "contexts": [1]
-    },
-    {
+      "id": 3,
       "name": "Imuroi",
-      "contexts": [2]
-    },
-    {
-      "name": "Ruoki kissa",
-      "contexts": [2, 3]
+      "contexts": [
+        2
+      ]
     }
   ],
   "contexts": {

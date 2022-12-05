@@ -4,9 +4,11 @@ export default class TasksViewComponent extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
+      id: this.props.id,
       editing: false,
       name: this.props.name,
       contexts: this.props.contexts,
+      onDelete: this.props.onDelete,
     };
     this.handleMessageChange = (event) => {
       this.setState({
@@ -21,13 +23,18 @@ export default class TasksViewComponent extends React.Component {
     });
   };
 
-  renderForm() {
+  handleDelete = () => {
+    this.state.onDelete(this.state.id);
+  };
+
+  renderEditState() {
     return (
       <div className="task" key={this.props.index}>
         <textarea
           defaultValue={this.state.name}
           onChange={this.handleMessageChange}
         ></textarea>
+        <button onClick={this.handleDelete}>Delete</button>
         <button onClick={this.save}>Save</button>
         {this.state.contexts}
       </div>
@@ -37,7 +44,9 @@ export default class TasksViewComponent extends React.Component {
   renderNormal() {
     return (
       <div className="task" key={this.props.index}>
-        <h1 key={this.props.index}>{this.state.name}</h1>
+        <h1 key={this.props.index}>
+          {this.state.name} {this.state.id}
+        </h1>
         <button onClick={this.edit}>Edit</button>
         {this.state.contexts}
       </div>
@@ -51,6 +60,6 @@ export default class TasksViewComponent extends React.Component {
   };
 
   render() {
-    return this.state.editing ? this.renderForm() : this.renderNormal();
+    return this.state.editing ? this.renderEditState() : this.renderNormal();
   }
 }
