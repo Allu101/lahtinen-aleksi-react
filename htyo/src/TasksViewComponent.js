@@ -1,4 +1,5 @@
 import React from 'react';
+import TasksComponent from './TaskComponent';
 
 export default class TasksViewComponent extends React.Component {
   constructor(props) {
@@ -45,10 +46,11 @@ export default class TasksViewComponent extends React.Component {
     const { tasks, contexts } = this.state;
     if (contexts === null) return;
     return tasks.map((task, index) => (
-      <div className="task" key={index}>
-        <h1 key={index}>{task.name}</h1>
-        {this.getContexts(task.contexts, contexts)}
-      </div>
+      <TasksComponent
+        index={index}
+        name={task.name}
+        contexts={this.getContexts(task.contexts, contexts)}
+      />
     ));
   }
 
