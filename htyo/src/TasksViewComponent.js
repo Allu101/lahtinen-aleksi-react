@@ -5,8 +5,15 @@ export default class TasksViewComponent extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      tasks: [],
       contexts: null,
+      newTaskContexts: [],
+      newTaskName: '',
+      tasks: [],
+    };
+    this.handleNewTaskMessageChange = (event) => {
+      this.setState({
+        newTaskName: event.target.value,
+      });
     };
   }
   nextID = 1;
@@ -37,13 +44,37 @@ export default class TasksViewComponent extends React.Component {
       <div>
         <nav className="something">
           <h2>Tasks</h2>
+          <textarea
+            defaultValue={this.state.newTaskContexts}
+            value={this.state.newTaskName}
+            onChange={this.handleNewTaskMessageChange}
+          ></textarea>
+          <button onClick={this.createTask}>Add new task</button>
           {this.getTasks()}
         </nav>
       </div>
     );
   }
 
-  delete = (id) => {
+  createTask = () => {
+    const requestOptions = {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        id: this.nextID,
+        name: this.state.newTaskName,
+        contexts: this.state.newTaskContexts,
+      }),
+    };
+    fetch('http://localhost:3010/tasks/', requestOptions)
+      .then((response) => response.json())
+      .then(async () => {
+        this.initTasks();
+        this.setState({ newTaskName: '', newTaskContexts: [] });
+      });
+  };
+
+  deleteTask = (id) => {
     fetch(`http://localhost:3010/tasks/${id}`, {
       method: 'DELETE',
     }).then(async () => this.initTasks());
@@ -60,7 +91,7 @@ export default class TasksViewComponent extends React.Component {
           id={task.id}
           name={task.name}
           contexts={this.getContexts(task.contexts, contexts)}
-          onDelete={this.delete}
+          onDelete={this.deleteTask}
         />
       );
       this.nextID = task.id + 1;
