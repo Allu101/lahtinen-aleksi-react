@@ -1,32 +1,40 @@
 {
   "tasks": [
     {
-      "id": 3,
       "name": "Imuroi",
       "contexts": [
         2
-      ]
+      ],
+      "id": 3
     },
     {
-      "id": 4,
-      "name": "Koodaile",
-      "contexts": []
+      "name": "koodaa",
+      "contexts": [
+        1,
+        2
+      ],
+      "id": 6
     },
     {
-      "id": 5,
-      "name": "siivoa",
-      "contexts": []
+      "name": "siivoa huone",
+      "contexts": [
+        2
+      ],
+      "id": 7
     }
   ],
-  "contexts": {
-    "1": {
+  "contexts": [
+    {
+      "id": 1,
       "name": "Koulu"
     },
-    "2": {
+    {
+      "id": 2,
       "name": "Koti"
     },
-    "3": {
+    {
+      "id": 3,
       "name": "Lemmikki"
     }
-  }
+  ]
 }

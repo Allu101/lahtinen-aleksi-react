@@ -70,9 +70,13 @@ ul {
   padding: 2px;
 }
 
-.task p {
+.context {
   background-color: white;
   border-radius: 5px;
   margin: 5px;
   max-width: 75px;
+}
+
+.unselected-context {
+  background-color: gray;
 }

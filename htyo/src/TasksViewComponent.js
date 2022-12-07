@@ -1,19 +1,13 @@
 import React from 'react';
 import TasksComponent from './TaskComponent';
+import AddNewTaskComponent from './AddNewTaskComponent';
 
 export default class TasksViewComponent extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      contexts: null,
-      newTaskContexts: [],
-      newTaskName: '',
+      allContexts: [],
       tasks: [],
-    };
-    this.handleNewTaskMessageChange = (event) => {
-      this.setState({
-        newTaskName: event.target.value,
-      });
     };
   }
   nextID = 1;
@@ -27,7 +21,7 @@ export default class TasksViewComponent extends React.Component {
     await fetch('http://localhost:3010/contexts')
       .then((response) => response.json())
       .then((data) => {
-        this.setState({ contexts: data });
+        this.setState({ allContexts: data });
       });
   }
 
@@ -43,34 +37,40 @@ export default class TasksViewComponent extends React.Component {
     return (
       <div>
         <nav className="something">
-          <h2>Tasks</h2>
-          <textarea
-            defaultValue={this.state.newTaskContexts}
-            value={this.state.newTaskName}
-            onChange={this.handleNewTaskMessageChange}
-          ></textarea>
-          <button onClick={this.createTask}>Add new task</button>
+          <h1>Tasks</h1>
+          {this.addNewTaskComponent()}
           {this.getTasks()}
         </nav>
       </div>
     );
   }
 
-  createTask = () => {
+  addNewTaskComponent() {
+    if (this.state.allContexts.length === 0) return;
+
+    return (
+      <AddNewTaskComponent
+        onAddNewTask={this.createTask}
+        allContexts={this.state.allContexts}
+      ></AddNewTaskComponent>
+    );
+  }
+
+  createTask = (name, contexts, clearTextBoxValues) => {
     const requestOptions = {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         id: this.nextID,
-        name: this.state.newTaskName,
-        contexts: this.state.newTaskContexts,
+        name: name,
+        contexts: contexts,
       }),
     };
     fetch('http://localhost:3010/tasks/', requestOptions)
       .then((response) => response.json())
       .then(async () => {
         this.initTasks();
-        this.setState({ newTaskName: '', newTaskContexts: [] });
+        clearTextBoxValues();
       });
   };
 
@@ -81,8 +81,8 @@ export default class TasksViewComponent extends React.Component {
   };
 
   getTasks() {
-    const { tasks, contexts } = this.state;
-    if (contexts === null) return;
+    const { tasks, allContexts } = this.state;
+    if (allContexts === null) return;
     let taskComponents = [];
     tasks.forEach((task) => {
       taskComponents.push(
@@ -90,19 +90,13 @@ export default class TasksViewComponent extends React.Component {
           key={task.id}
           id={task.id}
           name={task.name}
-          contexts={this.getContexts(task.contexts, contexts)}
+          contexts={task.contexts}
           onDelete={this.deleteTask}
+          allContexts={this.state.allContexts}
         />
       );
       this.nextID = task.id + 1;
     });
-    console.log('next id: ' + this.nextID);
     return taskComponents;
-  }
-
-  getContexts(taskContexts, contexts) {
-    return taskContexts.map((contextId, index) => (
-      <p key={index}>{contexts[contextId].name}</p>
-    ));
   }
 }
