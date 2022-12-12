@@ -10,20 +10,20 @@ export default class TasksViewComponent extends React.Component {
       tasks: [],
     };
   }
-  nextID = 1;
+  nextTaskID = 1;
 
   componentDidMount = function () {
     this.initContexts();
     this.initTasks();
   };
 
-  async initContexts() {
+  initContexts = async () => {
     await fetch('http://localhost:3010/contexts')
       .then((response) => response.json())
       .then((data) => {
         this.setState({ allContexts: data });
       });
-  }
+  };
 
   async initTasks() {
     await fetch('http://localhost:3010/tasks')
@@ -52,6 +52,8 @@ export default class TasksViewComponent extends React.Component {
       <AddNewTaskComponent
         onAddNewTask={this.createTask}
         allContexts={this.state.allContexts}
+        onDelete={this.deleteContexts}
+        initContexts={this.initContexts}
       ></AddNewTaskComponent>
     );
   }
@@ -61,7 +63,7 @@ export default class TasksViewComponent extends React.Component {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        id: this.nextID,
+        id: this.nextTaskID,
         name: name,
         contexts: contexts,
       }),
@@ -72,6 +74,15 @@ export default class TasksViewComponent extends React.Component {
         this.initTasks();
         clearTextBoxValues();
       });
+  };
+
+  deleteContexts = async (idList) => {
+    await idList.forEach(async (id) => {
+      await fetch(`http://localhost:3010/contexts/${id}`, {
+        method: 'DELETE',
+      });
+      this.initContexts();
+    });
   };
 
   deleteTask = (id) => {
@@ -95,7 +106,7 @@ export default class TasksViewComponent extends React.Component {
           allContexts={this.state.allContexts}
         />
       );
-      this.nextID = task.id + 1;
+      this.nextTaskID = task.id + 1;
     });
     return taskComponents;
   }

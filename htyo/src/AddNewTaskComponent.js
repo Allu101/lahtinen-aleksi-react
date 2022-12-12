@@ -4,10 +4,17 @@ export default class AddNewTaskComponent extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      allContexts: this.props.allContexts,
-      newTaskContexts: [],
+      editingNewContext: false,
+      newContextName: '',
+      selectedContexts: [],
       newTaskName: '',
       onAddNewTask: this.props.onAddNewTask,
+      onDelete: this.props.onDelete,
+    };
+    this.handleNewContextMessageChange = (event) => {
+      this.setState({
+        newContextName: event.target.value,
+      });
     };
     this.handleNewTaskMessageChange = (event) => {
       this.setState({
@@ -15,7 +22,6 @@ export default class AddNewTaskComponent extends React.Component {
       });
     };
   }
-
   lastClickedButtonID = -1;
 
   contains(list, value) {
@@ -35,23 +41,28 @@ export default class AddNewTaskComponent extends React.Component {
   createNewTask = () => {
     this.state.onAddNewTask(
       this.state.newTaskName,
-      this.state.newTaskContexts,
+      this.state.selectedContexts,
       this.clearTextBox
     );
     this.setState({ newTaskContexts: [] });
   };
 
-  getContextButtons = () => {
-    let buttons = [];
+  editNewContext = () => {
+    this.setState({
+      editingNewContext: true,
+    });
+  };
+
+  getContextElements = () => {
+    let elements = [];
     let className = '';
-    let index = 1;
-    this.state.allContexts.map((context) => {
-      if (this.contains(this.state.newTaskContexts, context.id)) {
+    this.props.allContexts.map((context, index) => {
+      if (this.contains(this.state.selectedContexts, context.id)) {
         className = 'context';
       } else {
         className = 'context unselected-context';
       }
-      buttons.push(
+      elements.push(
         <button
           key={index}
           className={className}
@@ -63,23 +74,52 @@ export default class AddNewTaskComponent extends React.Component {
           {context.name}
         </button>
       );
-      index++;
     });
-    return buttons;
+    if (this.state.editingNewContext) {
+      elements.push(
+        <textarea
+          key={'contextTextarea'}
+          value={this.state.newContextName}
+          onChange={this.handleNewContextMessageChange}
+        ></textarea>
+      );
+      elements.push(
+        <button key={'saveNewContextBtn'} onClick={this.saveNewContext}>
+          Add new Context
+        </button>
+      );
+    } else {
+      elements.push(
+        <button key={'editNewContextBtn'} onClick={this.editNewContext}>
+          Create new Context
+        </button>
+      );
+      elements.push(
+        <button key={'deleteContextBtn'} onClick={this.handleDelete}>
+          Delete selected contexts
+        </button>
+      );
+    }
+    return elements;
   };
 
   handleClick = () => {
-    if (this.contains(this.state.newTaskContexts, this.lastClickedButtonID)) {
+    if (this.contains(this.state.selectedContexts, this.lastClickedButtonID)) {
       this.setState({
-        newTaskContexts: this.state.newTaskContexts.filter((context) => {
+        selectedContexts: this.state.selectedContexts.filter((context) => {
           return context !== this.lastClickedButtonID;
         }),
       });
     } else {
-      this.state.newTaskContexts.push(this.lastClickedButtonID);
+      this.state.selectedContexts.push(this.lastClickedButtonID);
     }
     this.lastClickedButtonID = -1;
     this.setState({});
+  };
+
+  handleDelete = () => {
+    this.state.onDelete(this.state.selectedContexts);
+    this.setState({ allContexts: this.props.allContexts });
   };
 
   render() {
@@ -91,8 +131,28 @@ export default class AddNewTaskComponent extends React.Component {
         ></textarea>
         <button onClick={this.createNewTask}>Add new task</button>
         <br></br>
-        {this.getContextButtons()}
+        {this.getContextElements()}
       </div>
     );
   }
+
+  saveNewContext = () => {
+    const requestOptions = {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        id: this.props.allContexts.at(-1).id + 1,
+        name: this.state.newContextName,
+      }),
+    };
+    fetch(`http://localhost:3010/contexts/`, requestOptions)
+      .then((response) => response.json())
+      .then(async () => {
+        this.props.initContexts();
+        this.setState({
+          editingNewContext: false,
+          selectedContexts: [],
+        });
+      });
+  };
 }
