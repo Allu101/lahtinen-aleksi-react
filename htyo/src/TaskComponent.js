@@ -16,7 +16,6 @@ export default class TasksViewComponent extends React.Component {
       });
     };
   }
-  allContexts = this.props.allContexts;
   lastClickedButtonID = -1;
 
   contains(list, value) {
@@ -39,7 +38,7 @@ export default class TasksViewComponent extends React.Component {
     let buttons = [];
     let className = '';
     let index = 1;
-    this.allContexts.map((context) => {
+    this.props.allContexts.map((context) => {
       if (this.contains(this.state.contexts, context.id)) {
         className = 'context';
       } else {
@@ -117,7 +116,7 @@ export default class TasksViewComponent extends React.Component {
           {this.state.name} {this.state.id}
         </h2>
         <button onClick={this.edit}>Edit</button>
-        {this.getContexts(this.state.contexts, this.allContexts)}
+        {this.getContexts(this.state.contexts, this.props.allContexts)}
       </div>
     );
   }
