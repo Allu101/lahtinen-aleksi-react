@@ -97,7 +97,9 @@ export default class TasksViewComponent extends React.Component {
       <div className="task" key={this.props.index}>
         <h2 key={this.props.index}>{this.state.name}</h2>
         <button onClick={this.edit}>Edit</button>
-        {this.getContexts(this.state.contexts, this.props.allContexts)}
+        <div className="contexts">
+          {this.getContexts(this.state.contexts, this.props.allContexts)}
+        </div>
       </div>
     );
   }

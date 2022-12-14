@@ -1,7 +1,7 @@
 import React from 'react';
 import TasksComponent from './TaskComponent';
-import AddNewTaskComponent from './AddNewTaskComponent';
-import { contains } from './utis';
+import { TasksHeaderComponent } from './TasksHeaderComponent';
+import { contains, getContextButtons } from './utis';
 
 export default class TasksViewComponent extends React.Component {
   constructor(props) {
@@ -9,6 +9,8 @@ export default class TasksViewComponent extends React.Component {
     this.state = {
       allContexts: [],
       tasks: [],
+      visibleContexts: [],
+      showContextsMenu: false,
     };
   }
   nextTaskID = 1;
@@ -23,6 +25,11 @@ export default class TasksViewComponent extends React.Component {
       .then((response) => response.json())
       .then((data) => {
         this.setState({ allContexts: data });
+        this.state.allContexts.forEach((c) => {
+          if (!contains(this.state.visibleContexts, c.id)) {
+            this.state.visibleContexts.push(c.id);
+          }
+        });
       });
   };
 
@@ -32,31 +39,6 @@ export default class TasksViewComponent extends React.Component {
       .then((data) => {
         this.setState({ tasks: data });
       });
-  }
-
-  render() {
-    return (
-      <div>
-        <nav className="something">
-          <h1>Tasks</h1>
-          {this.addNewTaskComponent()}
-          {this.getTasks()}
-        </nav>
-      </div>
-    );
-  }
-
-  addNewTaskComponent() {
-    if (this.state.allContexts.length === 0) return;
-
-    return (
-      <AddNewTaskComponent
-        onAddNewTask={this.createTask}
-        allContexts={this.state.allContexts}
-        onDelete={this.deleteContexts}
-        initContexts={this.initContexts}
-      ></AddNewTaskComponent>
-    );
   }
 
   createTask = (name, contexts, clearTextBoxValues) => {
@@ -109,25 +91,83 @@ export default class TasksViewComponent extends React.Component {
     }).then(async () => this.initTasks());
   };
 
+  getDisplaySettingsElements = () => {
+    let list = [];
+    list.push(
+      <button
+        key={'filterBtn'}
+        onClick={() => {
+          this.setState({ showContextsMenu: !this.state.showContextsMenu });
+        }}
+      >
+        Filter tasks
+      </button>
+    );
+    if (this.state.showContextsMenu) {
+      list.push(
+        getContextButtons(
+          this.state.allContexts,
+          this.state.visibleContexts,
+          this.handleFilterClick
+        )
+      );
+    }
+    return list;
+  };
+
   getTasks() {
-    const { tasks, allContexts } = this.state;
+    const { tasks, allContexts, visibleContexts } = this.state;
     if (allContexts === null) return;
     let taskComponents = [];
     tasks.forEach((task) => {
-      taskComponents.push(
-        <TasksComponent
-          key={task.id}
-          id={task.id}
-          name={task.name}
-          contexts={task.contexts}
-          onDelete={this.deleteTask}
-          allContexts={this.state.allContexts}
-          onSave={this.saveTask}
-        />
-      );
+      let show = false;
+      task.contexts.forEach(function (c) {
+        if (contains(visibleContexts, c)) {
+          show = true;
+        }
+      });
+      if (show) {
+        taskComponents.push(
+          <TasksComponent
+            key={task.id}
+            id={task.id}
+            name={task.name}
+            contexts={task.contexts}
+            onDelete={this.deleteTask}
+            allContexts={this.state.allContexts}
+            onSave={this.saveTask}
+          />
+        );
+      }
       this.nextTaskID = task.id + 1;
     });
     return taskComponents;
+  }
+
+  handleFilterClick = (clickedID) => {
+    if (contains(this.state.visibleContexts, clickedID)) {
+      this.setState({
+        visibleContexts: this.state.visibleContexts.filter((context) => {
+          return context !== clickedID;
+        }),
+      });
+    } else {
+      if (!contains(this.state.visibleContexts, clickedID)) {
+        this.state.visibleContexts.push(clickedID);
+      }
+    }
+    this.forceUpdate();
+  };
+
+  render() {
+    return (
+      <div>
+        <h1>Tasks</h1>
+        {this.TasksHeaderComponent()}
+        <div className="main"></div>
+        <div className="tasks">{this.getTasks()}</div>
+      </div>
+    );
   }
 
   saveTask = (name, contexts, id) => {
@@ -145,4 +185,19 @@ export default class TasksViewComponent extends React.Component {
         this.initTasks();
       });
   };
+
+  TasksHeaderComponent() {
+    if (this.state.allContexts.length === 0) return;
+
+    return (
+      <TasksHeaderComponent
+        onAddNewTask={this.createTask}
+        allContexts={this.state.allContexts}
+        onDelete={this.deleteContexts}
+        initContexts={this.initContexts}
+        visibleContexts={this.state.visibleContexts}
+        getDisplaySettingsElements={this.getDisplaySettingsElements}
+      ></TasksHeaderComponent>
+    );
+  }
 }

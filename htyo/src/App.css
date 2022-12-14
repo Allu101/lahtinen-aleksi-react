@@ -37,8 +37,9 @@
   }
 }
 
-nav {
-  border-bottom: 1px solid black;
+h1,
+.tasks {
+  border-top: 1px solid black;
 }
 
 ul {
@@ -65,16 +66,30 @@ ul {
 .task {
   background-color: rgba(20, 199, 209, 0.726);
   border-radius: 10px;
+  min-width: 200px;
   max-width: 200px;
   margin: 10px;
   padding: 2px;
+}
+
+.task h2 {
+  font-size: 1.3em;
+  margin: 10px;
+}
+
+.tasks,
+.contexts {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: center;
 }
 
 .context {
   background-color: white;
   border-radius: 5px;
   margin: 5px;
-  max-width: 75px;
+  padding: 2px 5px;
 }
 
 .unselected-context {

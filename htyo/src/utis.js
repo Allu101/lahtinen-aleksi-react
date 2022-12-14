@@ -1,5 +1,6 @@
 export const contains = (list, value) => {
   let found = false;
+  console.log(list);
   list.map((id) => {
     if (Number(id) === Number(value)) {
       found = true;

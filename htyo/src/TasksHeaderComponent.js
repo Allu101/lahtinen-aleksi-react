@@ -1,7 +1,7 @@
 import React from 'react';
 import { contains, getContextButtons } from './utis';
 
-export default class AddNewTaskComponent extends React.Component {
+export class TasksHeaderComponent extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -109,6 +109,9 @@ export default class AddNewTaskComponent extends React.Component {
         <button onClick={this.createNewTask}>Add new task</button>
         <br></br>
         {this.getContextElements()}
+        <div className="tasks-display">
+          {this.props.getDisplaySettingsElements()}
+        </div>
       </div>
     );
   }
