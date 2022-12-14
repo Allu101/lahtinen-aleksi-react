@@ -1,6 +1,7 @@
 import React from 'react';
 import TasksComponent from './TaskComponent';
 import AddNewTaskComponent from './AddNewTaskComponent';
+import { contains } from './utis';
 
 export default class TasksViewComponent extends React.Component {
   constructor(props) {
@@ -81,6 +82,23 @@ export default class TasksViewComponent extends React.Component {
       await fetch(`http://localhost:3010/contexts/${id}`, {
         method: 'DELETE',
       });
+      this.state.tasks.forEach((task) => {
+        if (contains(task.contexts, id)) {
+          const requestOptions = {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              name: task.name,
+              contexts: task.contexts.filter((context) => {
+                return context !== id;
+              }),
+            }),
+          };
+          fetch(`http://localhost:3010/tasks/${task.id}`, requestOptions).then(
+            (response) => response.json()
+          );
+        }
+      });
       this.initContexts();
     });
   };
@@ -104,10 +122,27 @@ export default class TasksViewComponent extends React.Component {
           contexts={task.contexts}
           onDelete={this.deleteTask}
           allContexts={this.state.allContexts}
+          onSave={this.saveTask}
         />
       );
       this.nextTaskID = task.id + 1;
     });
     return taskComponents;
   }
+
+  saveTask = (name, contexts, id) => {
+    const requestOptions = {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        name: name,
+        contexts: contexts,
+      }),
+    };
+    fetch(`http://localhost:3010/tasks/${id}`, requestOptions)
+      .then((response) => response.json())
+      .then(async () => {
+        this.initTasks();
+      });
+  };
 }

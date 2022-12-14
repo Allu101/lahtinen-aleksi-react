@@ -1,4 +1,5 @@
 import React from 'react';
+import { contains, getContextButtons } from './utis';
 
 export default class TasksViewComponent extends React.Component {
   constructor(props) {
@@ -9,6 +10,7 @@ export default class TasksViewComponent extends React.Component {
       name: this.props.name,
       contexts: this.props.contexts,
       onDelete: this.props.onDelete,
+      onSave: this.props.onSave,
     };
     this.handleMessageChange = (event) => {
       this.setState({
@@ -18,47 +20,10 @@ export default class TasksViewComponent extends React.Component {
   }
   lastClickedButtonID = -1;
 
-  contains(list, value) {
-    let contains = false;
-    list.map((id) => {
-      if (Number(id) === Number(value)) {
-        contains = true;
-      }
-    });
-    return contains;
-  }
-
   edit = () => {
     this.setState({
       editing: true,
     });
-  };
-
-  getContextButtons = () => {
-    let buttons = [];
-    let className = '';
-    let index = 1;
-    this.props.allContexts.map((context) => {
-      if (this.contains(this.state.contexts, context.id)) {
-        className = 'context';
-      } else {
-        className = 'context unselected-context';
-      }
-      buttons.push(
-        <button
-          key={index}
-          className={className}
-          onClick={() => {
-            this.lastClickedButtonID = context.id;
-            this.handleClick();
-          }}
-        >
-          {context.name}
-        </button>
-      );
-      index++;
-    });
-    return buttons;
   };
 
   getContexts(taskContexts, allContexts) {
@@ -77,8 +42,9 @@ export default class TasksViewComponent extends React.Component {
     return output;
   }
 
-  handleClick = () => {
-    if (this.contains(this.state.contexts, this.lastClickedButtonID)) {
+  handleClick = (clickedID) => {
+    this.lastClickedButtonID = clickedID;
+    if (contains(this.state.contexts, this.lastClickedButtonID)) {
       this.setState({
         contexts: this.state.contexts.filter((context) => {
           return context !== this.lastClickedButtonID;
@@ -103,8 +69,25 @@ export default class TasksViewComponent extends React.Component {
           onChange={this.handleMessageChange}
         ></textarea>
         <button onClick={this.handleDelete}>Delete</button>
-        <button onClick={this.save}>Save</button>
-        {this.getContextButtons()}
+        <button
+          onClick={() => {
+            this.props.onSave(
+              this.state.name,
+              this.state.contexts,
+              this.state.id
+            );
+            this.setState({
+              editing: false,
+            });
+          }}
+        >
+          Save
+        </button>
+        {getContextButtons(
+          this.props.allContexts,
+          this.state.contexts,
+          this.handleClick
+        )}
       </div>
     );
   }
@@ -112,32 +95,12 @@ export default class TasksViewComponent extends React.Component {
   renderNormal() {
     return (
       <div className="task" key={this.props.index}>
-        <h2 key={this.props.index}>
-          {this.state.name} {this.state.id}
-        </h2>
+        <h2 key={this.props.index}>{this.state.name}</h2>
         <button onClick={this.edit}>Edit</button>
         {this.getContexts(this.state.contexts, this.props.allContexts)}
       </div>
     );
   }
-
-  save = () => {
-    const requestOptions = {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        name: this.state.name,
-        contexts: this.state.contexts,
-      }),
-    };
-    fetch(`http://localhost:3010/tasks/${this.state.id}`, requestOptions)
-      .then((response) => response.json())
-      .then(async () => {
-        this.setState({
-          editing: false,
-        });
-      });
-  };
 
   render() {
     return this.state.editing ? this.renderEditState() : this.renderNormal();

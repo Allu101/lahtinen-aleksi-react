@@ -1,4 +1,5 @@
 import React from 'react';
+import { contains, getContextButtons } from './utis';
 
 export default class AddNewTaskComponent extends React.Component {
   constructor(props) {
@@ -24,16 +25,6 @@ export default class AddNewTaskComponent extends React.Component {
   }
   lastClickedButtonID = -1;
 
-  contains(list, value) {
-    let contains = false;
-    list.map((id) => {
-      if (Number(id) === Number(value)) {
-        contains = true;
-      }
-    });
-    return contains;
-  }
-
   clearTextBox = () => {
     this.setState({ newTaskName: '' });
   };
@@ -44,7 +35,7 @@ export default class AddNewTaskComponent extends React.Component {
       this.state.selectedContexts,
       this.clearTextBox
     );
-    this.setState({ newTaskContexts: [] });
+    this.setState({ selectedContexts: [] });
   };
 
   editNewContext = () => {
@@ -54,27 +45,12 @@ export default class AddNewTaskComponent extends React.Component {
   };
 
   getContextElements = () => {
-    let elements = [];
-    let className = '';
-    this.props.allContexts.map((context, index) => {
-      if (this.contains(this.state.selectedContexts, context.id)) {
-        className = 'context';
-      } else {
-        className = 'context unselected-context';
-      }
-      elements.push(
-        <button
-          key={index}
-          className={className}
-          onClick={() => {
-            this.lastClickedButtonID = context.id;
-            this.handleClick();
-          }}
-        >
-          {context.name}
-        </button>
-      );
-    });
+    let elements = getContextButtons(
+      this.props.allContexts,
+      this.state.selectedContexts,
+      this.handleClick
+    );
+
     if (this.state.editingNewContext) {
       elements.push(
         <textarea
@@ -103,8 +79,9 @@ export default class AddNewTaskComponent extends React.Component {
     return elements;
   };
 
-  handleClick = () => {
-    if (this.contains(this.state.selectedContexts, this.lastClickedButtonID)) {
+  handleClick = (clickedID) => {
+    this.lastClickedButtonID = clickedID;
+    if (contains(this.state.selectedContexts, this.lastClickedButtonID)) {
       this.setState({
         selectedContexts: this.state.selectedContexts.filter((context) => {
           return context !== this.lastClickedButtonID;
@@ -119,7 +96,7 @@ export default class AddNewTaskComponent extends React.Component {
 
   handleDelete = () => {
     this.state.onDelete(this.state.selectedContexts);
-    this.setState({ allContexts: this.props.allContexts });
+    this.setState({ selectedContexts: [] });
   };
 
   render() {
@@ -151,6 +128,7 @@ export default class AddNewTaskComponent extends React.Component {
         this.props.initContexts();
         this.setState({
           editingNewContext: false,
+          newContextName: '',
           selectedContexts: [],
         });
       });
