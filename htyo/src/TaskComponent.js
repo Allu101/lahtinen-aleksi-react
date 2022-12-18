@@ -31,6 +31,9 @@ export default class TasksViewComponent extends React.Component {
     });
   };
 
+  /**
+   * Get contexts from given ids
+   */
   getContexts(taskContexts, allContexts) {
     let output = [];
     taskContexts.map((contextID) => {
@@ -47,6 +50,10 @@ export default class TasksViewComponent extends React.Component {
     return output;
   }
 
+  /**
+   * Handle visible and hidden contexts on the filter menu
+   * @param {*} clickedID
+   */
   handleClick = (clickedID) => {
     this.lastClickedButtonID = clickedID;
     if (contains(this.state.contexts, this.lastClickedButtonID)) {
@@ -66,6 +73,9 @@ export default class TasksViewComponent extends React.Component {
     this.state.onDelete(this.state.id);
   };
 
+  /**
+   * Add START timestamp to activitylog (db)
+   */
   onActivate = () => {
     this.setState({ isActive: true });
     const requestOptions = {
@@ -82,6 +92,9 @@ export default class TasksViewComponent extends React.Component {
     );
   };
 
+  /**
+   * Add STOP timestamp to activitylog (db)
+   */
   onInactivate = () => {
     this.taskClasses = 'task';
     this.setState({ isActive: false });
@@ -161,6 +174,10 @@ export default class TasksViewComponent extends React.Component {
     );
   }
 
+  /**
+   * Render normal or edit state depending whether task is editing state or not.
+   * @returns
+   */
   render() {
     return this.state.editing
       ? this.renderEditState()

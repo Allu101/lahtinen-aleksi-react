@@ -1,6 +1,9 @@
 import React from 'react';
 import { contains, getContextButtons } from './utis';
 
+/**
+ * This component show "header" of taskView page containing add new task feature and add and remove contexts feature
+ */
 export class TasksHeaderComponent extends React.Component {
   constructor(props) {
     super(props);
@@ -12,6 +15,8 @@ export class TasksHeaderComponent extends React.Component {
       onAddNewTask: this.props.onAddNewTask,
       onDelete: this.props.onDelete,
     };
+    /* update textbox values to state variable
+     */
     this.handleNewContextMessageChange = (event) => {
       this.setState({
         newContextName: event.target.value,
@@ -44,6 +49,9 @@ export class TasksHeaderComponent extends React.Component {
     });
   };
 
+  /**
+   * return specific elements depends on current state (editingNewContexts or not)
+   */
   getContextElements = () => {
     let elements = getContextButtons(
       this.props.allContexts,
@@ -79,6 +87,10 @@ export class TasksHeaderComponent extends React.Component {
     return elements;
   };
 
+  /**
+   * Handle visible and hidden contexts on the filter menu
+   * @param {*} clickedID
+   */
   handleClick = (clickedID) => {
     this.lastClickedButtonID = clickedID;
     if (contains(this.state.selectedContexts, this.lastClickedButtonID)) {

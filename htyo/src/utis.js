@@ -1,3 +1,6 @@
+/**
+ * Check ¨whether list contains a given value.
+ */
 export const contains = (list, value) => {
   let found = false;
   list.map((id) => {
@@ -8,6 +11,9 @@ export const contains = (list, value) => {
   return found;
 };
 
+/**
+ * Return a list of contexts buttons with dirredent style depens on selected contexts
+ */
 export const getContextButtons = (
   allContexts,
   selectedContexts,

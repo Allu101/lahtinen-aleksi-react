@@ -17,6 +17,10 @@ export default class TasksViewComponent extends React.Component {
   nextTaskID = 1;
   tasksActivityLog = {};
 
+  /**
+   * (Next 4 methods)
+   * First of all, get all data from db
+   */
   componentDidMount = function () {
     this.initTasksActivityLog();
     this.initContexts();
@@ -73,6 +77,10 @@ export default class TasksViewComponent extends React.Component {
       });
   };
 
+  /**
+   * Delete context(s) with given id(s) from db and update task contexts (if task have deleted contexts)
+   * @param {*} idList
+   */
   deleteContexts = async (idList) => {
     await idList.forEach(async (id) => {
       await fetch(`http://localhost:3010/contexts/${id}`, {
@@ -105,6 +113,10 @@ export default class TasksViewComponent extends React.Component {
     }).then(async () => this.initTasks());
   };
 
+  /**
+   * Return Filter task and contexts buttons in list.
+   * @returns
+   */
   getDisplaySettingsElements = () => {
     let list = [];
     list.push(
@@ -129,6 +141,9 @@ export default class TasksViewComponent extends React.Component {
     return list;
   };
 
+  /**
+   * Create task components and return all in list.
+   */
   getTasks() {
     const { tasks, allContexts, visibleContexts } = this.state;
     let tasksList = [...tasks];
@@ -179,6 +194,10 @@ export default class TasksViewComponent extends React.Component {
     return taskComponents;
   }
 
+  /**
+   * Handle isible and hidden clicked contexts on the filter menu
+   * @param {*} clickedID
+   */
   handleFilterClick = (clickedID) => {
     if (contains(this.state.visibleContexts, clickedID)) {
       this.setState({
@@ -202,6 +221,9 @@ export default class TasksViewComponent extends React.Component {
     this.currentDragID = id;
   };
 
+  /**
+   * Call when drop task to over other task. Swap tasks ids and update new order numbers to db.
+   */
   onDrop = (id) => {
     let targetTaskIndex;
     let targetTask;
@@ -254,6 +276,13 @@ export default class TasksViewComponent extends React.Component {
     );
   }
 
+  /**
+   * Update tasks propertys to db
+   * @param {*} name
+   * @param {*} contexts
+   * @param {*} id
+   * @param {*} orderNumber
+   */
   saveTask = (name, contexts, id, orderNumber) => {
     const requestOptions = {
       method: 'PATCH',
