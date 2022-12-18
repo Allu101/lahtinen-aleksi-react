@@ -5,10 +5,11 @@ export default class TasksViewComponent extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      id: this.props.id,
-      editing: false,
-      name: this.props.name,
       contexts: this.props.contexts,
+      editing: false,
+      id: this.props.id,
+      isActive: false,
+      name: this.props.name,
       onDelete: this.props.onDelete,
       onSave: this.props.onSave,
     };
@@ -19,6 +20,7 @@ export default class TasksViewComponent extends React.Component {
     };
   }
   lastClickedButtonID = -1;
+  taskClasses = 'task';
 
   edit = () => {
     this.setState({
@@ -61,9 +63,19 @@ export default class TasksViewComponent extends React.Component {
     this.state.onDelete(this.state.id);
   };
 
+  onActivate = () => {
+    this.taskClasses += ' task-activated';
+    this.setState({ isActive: true });
+  };
+
+  onInactivate = () => {
+    this.taskClasses = 'task';
+    this.setState({ isActive: false });
+  };
+
   renderEditState() {
     return (
-      <div className="task" key={this.props.index}>
+      <div className={this.taskClasses} key={this.props.index}>
         <textarea
           defaultValue={this.state.name}
           onChange={this.handleMessageChange}
@@ -74,7 +86,8 @@ export default class TasksViewComponent extends React.Component {
             this.props.onSave(
               this.state.name,
               this.state.contexts,
-              this.state.id
+              this.state.id,
+              this.props.orderNumer
             );
             this.setState({
               editing: false,
@@ -92,10 +105,25 @@ export default class TasksViewComponent extends React.Component {
     );
   }
 
-  renderNormal() {
+  renderNormalState() {
     return (
-      <div className="task" key={this.props.index}>
+      <div className={this.taskClasses}>
         <h2 key={this.props.index}>{this.state.name}</h2>
+        {this.state.isActive ? (
+          <button
+            style={{ backgroundColor: 'red' }}
+            onClick={this.onInactivate}
+          >
+            Inactivate
+          </button>
+        ) : (
+          <button
+            style={{ backgroundColor: 'lightgreen' }}
+            onClick={this.onActivate}
+          >
+            Activate
+          </button>
+        )}
         <button onClick={this.edit}>Edit</button>
         <div className="contexts">
           {this.getContexts(this.state.contexts, this.props.allContexts)}
@@ -105,6 +133,8 @@ export default class TasksViewComponent extends React.Component {
   }
 
   render() {
-    return this.state.editing ? this.renderEditState() : this.renderNormal();
+    return this.state.editing
+      ? this.renderEditState()
+      : this.renderNormalState();
   }
 }

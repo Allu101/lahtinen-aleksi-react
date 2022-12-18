@@ -13,6 +13,7 @@ export default class TasksViewComponent extends React.Component {
       showContextsMenu: false,
     };
   }
+  currentDragID = -1;
   nextTaskID = 1;
 
   componentDidMount = function () {
@@ -49,6 +50,7 @@ export default class TasksViewComponent extends React.Component {
         id: this.nextTaskID,
         name: name,
         contexts: contexts,
+        orderNumber: this.state.tasks.length,
       }),
     };
     fetch('http://localhost:3010/tasks/', requestOptions)
@@ -117,9 +119,14 @@ export default class TasksViewComponent extends React.Component {
 
   getTasks() {
     const { tasks, allContexts, visibleContexts } = this.state;
+    let tasksList = [...tasks];
     if (allContexts === null) return;
     let taskComponents = [];
-    tasks.forEach((task) => {
+    tasksList = tasksList.sort((a, b) =>
+      a.orderNumber < b.orderNumber ? -1 : 1
+    );
+
+    tasksList.forEach((task) => {
       let show = false;
       task.contexts.forEach(function (c) {
         if (contains(visibleContexts, c)) {
@@ -128,15 +135,26 @@ export default class TasksViewComponent extends React.Component {
       });
       if (show) {
         taskComponents.push(
-          <TasksComponent
+          <div
             key={task.id}
-            id={task.id}
-            name={task.name}
-            contexts={task.contexts}
-            onDelete={this.deleteTask}
-            allContexts={this.state.allContexts}
-            onSave={this.saveTask}
-          />
+            draggable
+            onDragStart={() => this.onDragStart(task.id)}
+            onDragOver={(event) => this.onDragOver(event)}
+            onDrop={() => {
+              this.onDrop(task.id);
+            }}
+          >
+            <TasksComponent
+              key={task.id}
+              id={task.id}
+              name={task.name}
+              contexts={task.contexts}
+              orderNumber={task.orderNumber}
+              onDelete={this.deleteTask}
+              allContexts={this.state.allContexts}
+              onSave={this.saveTask}
+            />
+          </div>
         );
       }
       this.nextTaskID = task.id + 1;
@@ -159,6 +177,56 @@ export default class TasksViewComponent extends React.Component {
     this.forceUpdate();
   };
 
+  onDragOver = (event) => {
+    event.preventDefault();
+  };
+
+  onDragStart = (id) => {
+    this.currentDragID = id;
+  };
+
+  onDrop = (id) => {
+    const { tasks } = this.state;
+    let targetTaskIndex;
+    let targetTask;
+    let currentDragTaskIndex;
+    let currentDragTask;
+    this.state.tasks.forEach((t, index) => {
+      if (t.id === id) {
+        targetTaskIndex = index;
+        targetTask = t;
+      } else if (t.id === this.currentDragID) {
+        currentDragTaskIndex = index;
+        currentDragTask = t;
+      }
+    });
+    const copyListItems = [...this.state.tasks];
+    [copyListItems[targetTaskIndex], copyListItems[currentDragTaskIndex]] = [
+      copyListItems[currentDragTaskIndex],
+      copyListItems[targetTaskIndex],
+    ];
+
+    [targetTask['orderNumber'], currentDragTask['orderNumber']] = [
+      currentDragTask['orderNumber'],
+      targetTask['orderNumber'],
+    ];
+
+    this.saveTask(
+      targetTask.name,
+      targetTask.context,
+      targetTask.id,
+      targetTask.orderNumber
+    );
+    this.saveTask(
+      currentDragTask.name,
+      currentDragTask.context,
+      currentDragTask.id,
+      currentDragTask.orderNumber
+    );
+    this.setState({ tasks: copyListItems });
+    this.currentDragID = -1;
+  };
+
   render() {
     return (
       <div>
@@ -170,13 +238,14 @@ export default class TasksViewComponent extends React.Component {
     );
   }
 
-  saveTask = (name, contexts, id) => {
+  saveTask = (name, contexts, id, orderNumber) => {
     const requestOptions = {
-      method: 'PUT',
+      method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         name: name,
         contexts: contexts,
+        orderNumber: orderNumber,
       }),
     };
     fetch(`http://localhost:3010/tasks/${id}`, requestOptions)
@@ -185,6 +254,8 @@ export default class TasksViewComponent extends React.Component {
         this.initTasks();
       });
   };
+
+  swapTasksOrder;
 
   TasksHeaderComponent() {
     if (this.state.allContexts.length === 0) return;

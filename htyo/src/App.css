@@ -37,6 +37,10 @@
   }
 }
 
+button {
+  margin: 0px 4px;
+}
+
 h1,
 .tasks {
   border-top: 1px solid black;
@@ -72,13 +76,17 @@ ul {
   padding: 2px;
 }
 
+.task-activated {
+  border: orange 3px dashed;
+}
+
 .task h2 {
   font-size: 1.3em;
   margin: 10px;
 }
 
-.tasks,
-.contexts {
+.contexts,
+.tasks {
   display: flex;
   flex-direction: row;
   flex-wrap: wrap;
