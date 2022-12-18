@@ -56,5 +56,48 @@
       "name": "Lemmikki"
     }
   ],
-  "tasksActiveTimes": []
+  "tasksActivityLog": [
+    {
+      "timestamp": 1671392701049,
+      "taskID": 6,
+      "status": "START",
+      "id": 1
+    },
+    {
+      "timestamp": 1671392702998,
+      "taskID": 9,
+      "status": "START",
+      "id": 2
+    },
+    {
+      "timestamp": 1671392704623,
+      "taskID": 6,
+      "status": "STOP",
+      "id": 3
+    },
+    {
+      "timestamp": 1671395939225,
+      "taskID": 6,
+      "status": "START",
+      "id": 4
+    },
+    {
+      "timestamp": 1671395966535,
+      "taskID": 3,
+      "status": "START",
+      "id": 5
+    },
+    {
+      "timestamp": 1671396102480,
+      "taskID": 9,
+      "status": "STOP",
+      "id": 6
+    },
+    {
+      "timestamp": 1671396106936,
+      "taskID": 9,
+      "status": "START",
+      "id": 7
+    }
+  ]
 }

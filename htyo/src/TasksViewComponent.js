@@ -8,15 +8,17 @@ export default class TasksViewComponent extends React.Component {
     super(props);
     this.state = {
       allContexts: [],
+      showContextsMenu: false,
       tasks: [],
       visibleContexts: [],
-      showContextsMenu: false,
     };
   }
   currentDragID = -1;
   nextTaskID = 1;
+  tasksActivityLog = {};
 
   componentDidMount = function () {
+    this.initTasksActivityLog();
     this.initContexts();
     this.initTasks();
   };
@@ -39,6 +41,16 @@ export default class TasksViewComponent extends React.Component {
       .then((response) => response.json())
       .then((data) => {
         this.setState({ tasks: data });
+      });
+  }
+
+  async initTasksActivityLog() {
+    await fetch('http://localhost:3010/tasksActivityLog')
+      .then((response) => response.json())
+      .then((data) => {
+        data.forEach((d) => {
+          this.tasksActivityLog[d.taskID] = { id: d.taskID, status: d.status };
+        });
       });
   }
 
@@ -125,7 +137,6 @@ export default class TasksViewComponent extends React.Component {
     tasksList = tasksList.sort((a, b) =>
       a.orderNumber < b.orderNumber ? -1 : 1
     );
-
     tasksList.forEach((task) => {
       let show = false;
       task.contexts.forEach(function (c) {
@@ -145,14 +156,20 @@ export default class TasksViewComponent extends React.Component {
             }}
           >
             <TasksComponent
-              key={task.id}
-              id={task.id}
-              name={task.name}
-              contexts={task.contexts}
-              orderNumber={task.orderNumber}
-              onDelete={this.deleteTask}
               allContexts={this.state.allContexts}
+              contexts={task.contexts}
+              id={task.id}
+              isActive={
+                this.tasksActivityLog[task.id] !== undefined &&
+                this.tasksActivityLog[task.id].status === 'START'
+                  ? true
+                  : false
+              }
+              key={task.id}
+              name={task.name}
+              onDelete={this.deleteTask}
               onSave={this.saveTask}
+              orderNumber={task.orderNumber}
             />
           </div>
         );
@@ -186,7 +203,6 @@ export default class TasksViewComponent extends React.Component {
   };
 
   onDrop = (id) => {
-    const { tasks } = this.state;
     let targetTaskIndex;
     let targetTask;
     let currentDragTaskIndex;
@@ -254,8 +270,6 @@ export default class TasksViewComponent extends React.Component {
         this.initTasks();
       });
   };
-
-  swapTasksOrder;
 
   TasksHeaderComponent() {
     if (this.state.allContexts.length === 0) return;

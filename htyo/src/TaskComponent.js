@@ -1,6 +1,9 @@
 import React from 'react';
 import { contains, getContextButtons } from './utis';
 
+/**
+ * This is a single task component (blue box).
+ */
 export default class TasksViewComponent extends React.Component {
   constructor(props) {
     super(props);
@@ -8,7 +11,7 @@ export default class TasksViewComponent extends React.Component {
       contexts: this.props.contexts,
       editing: false,
       id: this.props.id,
-      isActive: false,
+      isActive: this.props.isActive,
       name: this.props.name,
       onDelete: this.props.onDelete,
       onSave: this.props.onSave,
@@ -64,13 +67,36 @@ export default class TasksViewComponent extends React.Component {
   };
 
   onActivate = () => {
-    this.taskClasses += ' task-activated';
     this.setState({ isActive: true });
+    const requestOptions = {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        timestamp: new Date().valueOf(),
+        taskID: this.state.id,
+        status: 'START',
+      }),
+    };
+    fetch('http://localhost:3010/tasksActivityLog/', requestOptions).then(
+      (response) => response.json()
+    );
   };
 
   onInactivate = () => {
     this.taskClasses = 'task';
     this.setState({ isActive: false });
+    const requestOptions = {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        timestamp: new Date().valueOf(),
+        taskID: this.state.id,
+        status: 'STOP',
+      }),
+    };
+    fetch('http://localhost:3010/tasksActivityLog/', requestOptions).then(
+      (response) => response.json()
+    );
   };
 
   renderEditState() {
@@ -106,6 +132,9 @@ export default class TasksViewComponent extends React.Component {
   }
 
   renderNormalState() {
+    if (this.state.isActive) {
+      this.taskClasses += ' task-activated';
+    }
     return (
       <div className={this.taskClasses}>
         <h2 key={this.props.index}>{this.state.name}</h2>
